@@ -1,0 +1,11 @@
+{
+	"model": {
+		"type": "minecraft:special",
+		"base": "minecraft:item/chest",
+		"model": {
+			"type": "entangledchests:entangled_chest",
+			"texture": "entangledchests:entangled",
+			"openness": 0.0
+		}
+	}
+}

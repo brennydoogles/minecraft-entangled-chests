@@ -1,0 +1,6 @@
+{
+	"model": {
+		"type": "minecraft:model",
+		"model": "entangledchests:item/entangled_bundle"
+	}
+}

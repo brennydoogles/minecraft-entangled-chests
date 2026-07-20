@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"L": "minecraft:lapis_lazuli",
+		"E": "minecraft:echo_shard"
+	},
+	"pattern": [
+		"LLL",
+		"LEL",
+		"LLL"
+	],
+	"result": {
+		"id": "entangledchests:entanglement_crystal"
+	}
+}

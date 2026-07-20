@@ -1,0 +1,16 @@
+{
+	"type": "minecraft:crafting_shaped",
+	"category": "misc",
+	"key": {
+		"#": "#minecraft:planks",
+		"C": "entangledchests:entanglement_crystal"
+	},
+	"pattern": [
+		"###",
+		"#C#",
+		"###"
+	],
+	"result": {
+		"id": "entangledchests:entangled_chest"
+	}
+}

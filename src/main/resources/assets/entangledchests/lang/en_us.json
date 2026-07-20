@@ -1,0 +1,8 @@
+{
+	"item.entangledchests.entanglement_crystal": "Entanglement Crystal",
+	"item.entangledchests.entangled_bundle": "Entangled Bundle",
+	"block.entangledchests.entangled_chest": "Entangled Chest",
+	"container.entangledchests.entangled_chest": "Entangled Chest",
+	"tooltip.entangledchests.unkeyed": "Unkeyed",
+	"tooltip.entangledchests.keyed_to": "Keyed to %s"
+}
