@@ -3,6 +3,21 @@
 All notable changes to Entangled Chests are documented here. This project adheres
 to [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-07-21
+
+### Added
+
+- **NeoForge support.** The mod now ships for both Fabric and NeoForge from a
+  single shared codebase, built with Architectury. Download the jar matching your
+  loader.
+
+### Changed
+
+- **[Architectury API](https://modrinth.com/mod/architectury-api) is now a required
+  dependency** on both loaders.
+
+> No gameplay changes — mechanics, recipes and behaviour are identical to 1.0.0.
+
 ## [1.0.0] - 2026-07-20
 
 Initial release for Minecraft 1.21.11 (Fabric).
