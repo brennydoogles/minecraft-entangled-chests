@@ -2,6 +2,8 @@
 
 **Store items from anywhere.** Entangled Chests adds a bundle you can link to a chest — anything you drop into the bundle is teleported straight into its linked chest, no matter how far away you are. Think of it as a personal chute to your base storage.
 
+*Available for **Fabric** and **NeoForge**.*
+
 ---
 
 ## ✨ Features
@@ -69,13 +71,18 @@ Leather
 ## 📦 Requirements
 
 - **Minecraft** 1.21.11
-- **Fabric Loader** 0.19.3 or newer
-- **[Fabric API](https://modrinth.com/mod/fabric-api)**
 - **Java** 21+
+- **[Architectury API](https://modrinth.com/mod/architectury-api)** 19.0.1+ *(required on both loaders)*
 
-> This is a **Fabric** mod. It is not compatible with Forge/NeoForge.
+Then, depending on your loader:
 
-Works in single-player and on servers. Install on both the client and the server for multiplayer.
+| Loader | Also needs |
+| --- | --- |
+| **Fabric** | Fabric Loader 0.19.3+ and **[Fabric API](https://modrinth.com/mod/fabric-api)** |
+| **NeoForge** | NeoForge 21.11.44+ |
+
+> Download the jar matching your loader. Works in single-player and on servers —
+> install on both the client and the server for multiplayer.
 
 ---
 

@@ -1,0 +1,34 @@
+modLoader = "javafml"
+loaderVersion = "[1,)"
+license = "MIT"
+
+[[mods]]
+modId = "entangledchests"
+version = "${version}"
+displayName = "Entangled Chests"
+authors = "Brendon Dugan"
+logoFile = "assets/entangledchests/icon.png"
+description = '''
+Adds an entanglement crystal, an entangled chest, and an entangled bundle.
+'''
+
+[[dependencies.entangledchests]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.11,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.entangledchests]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.11,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.entangledchests]]
+modId = "architectury"
+type = "required"
+versionRange = "[19.0.1,)"
+ordering = "AFTER"
+side = "BOTH"

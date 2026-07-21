@@ -1,7 +1,7 @@
 # Entangled Chests
 
-A Fabric mod for Minecraft **1.21.11** that lets you link a bundle to a chest and
-teleport items into that chest from anywhere.
+A **Fabric + NeoForge** mod for Minecraft **1.21.11** that lets you link a bundle to
+a chest and teleport items into that chest from anywhere.
 
 > Looking for the player-facing description (features, recipes, how to play)? See
 > [MODRINTH.md](MODRINTH.md).
@@ -20,15 +20,25 @@ carry an enchantment glint.
 
 ## Requirements
 
-- Minecraft `1.21.11` · Fabric Loader `0.19.3`+ · [Fabric API](https://modrinth.com/mod/fabric-api) · Java `21`+
+- Minecraft `1.21.11` · Java `21`+ · [Architectury API](https://modrinth.com/mod/architectury-api) `19.0.1`+
+- **Fabric**: Fabric Loader `0.19.3`+ and [Fabric API](https://modrinth.com/mod/fabric-api)
+- **NeoForge**: `21.11.44`+
 
 ## Building & running
 
 ```bash
-./gradlew build          # produce the mod jar in build/libs
-./gradlew runClient      # launch a dev client with the mod loaded
-./gradlew runServer      # launch a dev dedicated server
+./gradlew build                 # builds both loaders
+
+./gradlew :fabric:runClient     # dev client on Fabric
+./gradlew :fabric:runServer
+./gradlew :neoforge:runClient   # dev client on NeoForge
+./gradlew :neoforge:runServer
 ```
+
+Output jars:
+
+- `fabric/build/libs/entangledchests-<version>.jar`
+- `neoforge/build/libs/entangledchests-<version>.jar`
 
 To regenerate decompiled Minecraft sources for reference: `./gradlew genSources`.
 
@@ -37,16 +47,19 @@ To regenerate decompiled Minecraft sources for reference: `./gradlew genSources`
 | Component | Version |
 | --- | --- |
 | Minecraft | `1.21.11` |
-| Fabric Loader | `0.19.3` |
-| Fabric API | `0.141.5+1.21.11` |
-| Fabric Loom | `1.18.0-alpha.9` |
+| Architectury API / plugin / Loom | `19.0.1` / `3.5.169` / `1.17.491` |
+| Fabric Loader / API | `0.19.3` / `0.141.5+1.21.11` |
+| NeoForge | `21.11.44` |
 | Gradle | `9.6.1` |
 | Mappings | Official Mojang mappings |
 
 This targets **1.21.11**, the latest currently-moddable release. The newer `26.x`
-line (calendar-style versioning) has no obfuscation mappings published yet —
-neither Mojang (its version manifest omits `client_mappings`) nor Yarn — so Loom
-cannot build against it. Version pins live in [`gradle.properties`](gradle.properties).
+line (calendar-style versioning) has no obfuscation mappings published by Mojang or
+Yarn, so Loom cannot build against it. Version pins live in
+[`gradle.properties`](gradle.properties).
+
+Both loaders use official Mojang mappings, which is why nearly all of the code can
+live in `common/` unchanged.
 
 ## How it works
 
@@ -64,22 +77,40 @@ cannot build against it. Version pins live in [`gradle.properties`](gradle.prope
   drawn through `submitModelPart(..., glint)` (vanilla chest renderers use
   `submitModel`, which has no foil flag).
 
+### Loader-specific bits
+
+Almost everything is shared. Only three things differ per loader:
+
+1. **Entrypoints** — `ModInitializer`/`ClientModInitializer` on Fabric, `@Mod`
+   classes on NeoForge; both just call `EntangledChests.init()` /
+   `EntangledChestsClient.init()`.
+2. **`BlockEntityType` creation** (`platform/PlatformHelper`, `@ExpectPlatform`) —
+   vanilla 1.21.11 exposes no constructor or builder, so Fabric uses
+   `FabricBlockEntityTypeBuilder` while NeoForge uses the constructor its access
+   transformer opens up.
+3. **The chest's special item model** — vanilla's `SpecialModelRenderers.ID_MAPPER`
+   is private; Fabric reaches it via Fabric API's transitive access wideners,
+   NeoForge via `RegisterSpecialModelRendererEvent`.
+
 ## Layout
 
 ```
-src/main/java/com/brendondugan/entangledchests/
-  EntangledChests.java            # ModInitializer entrypoint + id() helper
-  ModItems / ModBlocks / ModBlockEntities / ModComponents  # registration
+common/src/main/java/com/brendondugan/entangledchests/
+  EntangledChests.java            # shared init() + id() helper
+  ModItems / ModBlocks / ModBlockEntities / ModComponents  # Architectury DeferredRegister
   EntangledBundleItem.java        # bundle behaviour (extends BundleItem)
   component/EntangledKey.java     # bundle -> chest link component
   saveddata/EntangledChestRegistry.java  # global UUID -> chest registry
   util/EntangledTransfer.java     # deposit routing
+  platform/PlatformHelper.java    # @ExpectPlatform shims
   block/                          # EntangledChestBlock + BlockEntity
-  client/                         # client init + block-entity & special item renderers
-src/main/resources/
-  fabric.mod.json
+  client/                         # shared client init + renderers
+common/src/main/resources/
   assets/entangledchests/         # blockstates, models, items, textures, lang, icon
   data/entangledchests/recipe/    # the three crafting recipes
+
+fabric/    fabric.mod.json, ModInitializers, PlatformHelperImpl
+neoforge/  META-INF/neoforge.mods.toml, @Mod classes, PlatformHelperImpl
 ```
 
 ## License

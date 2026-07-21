@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "entangledchests",
+	"version": "${version}",
+	"name": "Entangled Chests",
+	"description": "Adds an entanglement crystal, an entangled chest, and an entangled bundle.",
+	"authors": [
+		"Brendon Dugan"
+	],
+	"contact": {},
+	"license": "MIT",
+	"icon": "assets/entangledchests/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.brendondugan.entangledchests.fabric.EntangledChestsFabric"
+		],
+		"client": [
+			"com.brendondugan.entangledchests.fabric.EntangledChestsFabricClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=${fabric_loader_version}",
+		"minecraft": "~${minecraft_version}",
+		"java": ">=21",
+		"fabric-api": "*",
+		"architectury": ">=19.0.1"
+	},
+	"suggests": {}
+}
