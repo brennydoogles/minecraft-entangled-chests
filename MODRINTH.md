@@ -70,16 +70,18 @@ Leather
 
 ## 📦 Requirements
 
-- **Minecraft** 1.21.11
-- **Java** 21+
-- **[Architectury API](https://modrinth.com/mod/architectury-api)** 19.0.1+ *(required on both loaders)*
+- **Minecraft** 26.1 or 26.2
+- **Java** 25+
+- **[Architectury API](https://modrinth.com/mod/architectury-api)** 20.0.9+ *(required on both loaders)*
 
 Then, depending on your loader:
 
 | Loader | Also needs |
 | --- | --- |
 | **Fabric** | Fabric Loader 0.19.3+ and **[Fabric API](https://modrinth.com/mod/fabric-api)** |
-| **NeoForge** | NeoForge 21.11.44+ |
+| **NeoForge** | NeoForge 26.1.2+ |
+
+*(Playing on Minecraft 1.21.11? Use the 1.1.x releases instead.)*
 
 > Download the jar matching your loader. Works in single-player and on servers —
 > install on both the client and the server for multiplayer.

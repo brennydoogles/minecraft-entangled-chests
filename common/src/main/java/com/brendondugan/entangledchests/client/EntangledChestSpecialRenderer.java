@@ -7,17 +7,19 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.object.chest.ChestModel;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.ChestRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.NoDataSpecialModelRenderer;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.MaterialSet;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import org.joml.Vector3fc;
 
 /**
@@ -29,34 +31,26 @@ import org.joml.Vector3fc;
  */
 public class EntangledChestSpecialRenderer implements NoDataSpecialModelRenderer {
 
-	private final MaterialSet materials;
+	private final SpriteGetter sprites;
 	private final ChestModel model;
-	private final Material material;
+	private final SpriteId sprite;
 	private final float openness;
 
-	public EntangledChestSpecialRenderer(MaterialSet materials, ChestModel model, Material material, float openness) {
-		this.materials = materials;
+	public EntangledChestSpecialRenderer(SpriteGetter sprites, ChestModel model, SpriteId sprite, float openness) {
+		this.sprites = sprites;
 		this.model = model;
-		this.material = material;
+		this.sprite = sprite;
 		this.openness = openness;
 	}
 
 	@Override
-	public void submit(ItemDisplayContext displayContext, PoseStack poseStack, SubmitNodeCollector collector,
-			int light, int overlay, boolean hasFoil, int outlineColor) {
+	public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, int overlay, boolean hasFoil,
+			int outlineColor) {
 		this.model.setupAnim(this.openness);
-		collector.submitModelPart(
-				this.model.root(),
-				poseStack,
-				this.material.renderType(RenderTypes::entitySolid),
-				light,
-				overlay,
-				this.materials.get(this.material),
-				false,
-				hasFoil,
-				-1,
-				null,
-				outlineColor);
+		RenderType renderType = this.sprite.renderType(RenderTypes::entityCutout);
+		TextureAtlasSprite atlasSprite = this.sprites.get(this.sprite);
+		collector.submitModelPart(this.model.root(), poseStack, renderType, light, overlay, atlasSprite, false, hasFoil,
+				-1, null, outlineColor);
 	}
 
 	@Override
@@ -66,7 +60,7 @@ public class EntangledChestSpecialRenderer implements NoDataSpecialModelRenderer
 		this.model.root().getExtentsForGui(poseStack, consumer);
 	}
 
-	public record Unbaked(Identifier texture, float openness) implements SpecialModelRenderer.Unbaked {
+	public record Unbaked(Identifier texture, float openness) implements NoDataSpecialModelRenderer.Unbaked {
 		public static final MapCodec<Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Identifier.CODEC.fieldOf("texture").forGetter(Unbaked::texture),
 				Codec.FLOAT.optionalFieldOf("openness", 0.0F).forGetter(Unbaked::openness)
@@ -78,10 +72,10 @@ public class EntangledChestSpecialRenderer implements NoDataSpecialModelRenderer
 		}
 
 		@Override
-		public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
-			ChestModel chestModel = new ChestModel(context.entityModelSet().bakeLayer(ModelLayers.CHEST));
-			Material material = Sheets.CHEST_MAPPER.apply(this.texture);
-			return new EntangledChestSpecialRenderer(context.materials(), chestModel, material, this.openness);
+		public EntangledChestSpecialRenderer bake(SpecialModelRenderer.BakingContext context) {
+			ChestModel chestModel = new ChestModel(context.entityModelSet().bakeLayer(ChestRenderer.LAYERS.select(ChestType.SINGLE)));
+			SpriteId spriteId = Sheets.CHEST_MAPPER.apply(this.texture);
+			return new EntangledChestSpecialRenderer(context.sprites(), chestModel, spriteId, this.openness);
 		}
 	}
 }

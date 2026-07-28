@@ -1,6 +1,6 @@
 # Entangled Chests
 
-A **Fabric + NeoForge** mod for Minecraft **1.21.11** that lets you link a bundle to
+A **Fabric + NeoForge** mod for Minecraft **26.1–26.2** that lets you link a bundle to
 a chest and teleport items into that chest from anywhere.
 
 > Looking for the player-facing description (features, recipes, how to play)? See
@@ -20,9 +20,11 @@ carry an enchantment glint.
 
 ## Requirements
 
-- Minecraft `1.21.11` · Java `21`+ · [Architectury API](https://modrinth.com/mod/architectury-api) `19.0.1`+
+- Minecraft `26.1`–`26.2` · Java `25`+ · [Architectury API](https://modrinth.com/mod/architectury-api) `20.0.9`+
 - **Fabric**: Fabric Loader `0.19.3`+ and [Fabric API](https://modrinth.com/mod/fabric-api)
-- **NeoForge**: `21.11.44`+
+- **NeoForge**: `26.1.2`+
+
+(For Minecraft `1.21.11`, use the `1.1.x` releases.)
 
 ## Building & running
 
@@ -42,9 +44,8 @@ The distributable jars for every platform are collected into the **root
 - `build/libs/entangledchests-<version>-fabric.jar`
 - `build/libs/entangledchests-<version>-neoforge.jar`
 
-(These are copies of each module's remapped jar — the ones to upload. Ignore the
-`-dev-shadow.jar` files under `<platform>/build/libs/`; they're un-remapped build
-intermediates.)
+(These are copies of each module's shadowed jar — the ones to upload. Ignore any
+`-raw.jar` under `<platform>/build/libs/`; that's the pre-shadow intermediate.)
 
 To regenerate decompiled Minecraft sources for reference: `./gradlew genSources`.
 
@@ -52,20 +53,19 @@ To regenerate decompiled Minecraft sources for reference: `./gradlew genSources`
 
 | Component | Version |
 | --- | --- |
-| Minecraft | `1.21.11` |
-| Architectury API / plugin / Loom | `19.0.1` / `3.5.169` / `1.17.491` |
-| Fabric Loader / API | `0.19.3` / `0.141.5+1.21.11` |
-| NeoForge | `21.11.44` |
-| Gradle | `9.6.1` |
-| Mappings | Official Mojang mappings |
+| Minecraft (compile target) | `26.1.2` (runs on 26.1–26.2) |
+| Architectury API / plugin / Loom | `20.0.9` / `3.5.169` / `loom-no-remap 1.17-SNAPSHOT` |
+| Fabric Loader / API | `0.19.3` / `0.155.2+26.1.2` |
+| NeoForge | `26.1.2.87` |
+| Gradle / Java | `9.6.1` / `25` |
+| Mappings | none — Minecraft is deobfuscated as of 26.1 |
 
-This targets **1.21.11**, the latest currently-moddable release. The newer `26.x`
-line (calendar-style versioning) has no obfuscation mappings published by Mojang or
-Yarn, so Loom cannot build against it. Version pins live in
-[`gradle.properties`](gradle.properties).
-
-Both loaders use official Mojang mappings, which is why nearly all of the code can
-live in `common/` unchanged.
+**No obfuscation mappings.** As of Minecraft 26.1 the game ships with real class
+names, so there are no Yarn/Mojang mappings and none are needed — Loom builds
+directly against the jar via the **`loom-no-remap`** plugin (no `mappings` line, no
+intermediary remap). Our code is already written in those names, which is why nearly
+all of it lives in `common/` unchanged. The 26.x line is compiled against 26.1 and
+declared to also run on 26.2. Version pins live in [`gradle.properties`](gradle.properties).
 
 ## How it works
 
