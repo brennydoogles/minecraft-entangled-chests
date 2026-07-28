@@ -3,6 +3,21 @@
 All notable changes to Entangled Chests are documented here. This project adheres
 to [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-07-28
+
+### Changed
+
+- Declared Minecraft compatibility is now open-ended — the mod loads on `1.21.11`
+  and any newer version, on both loaders (previously limited to the `1.21.11`
+  line). Note it is still built and tested only against `1.21.11`.
+
+### Internal
+
+- The build now collects the distributable jar for each platform into the root
+  `build/libs/` directory, named `entangledchests-<version>-<platform>.jar`.
+
+> No gameplay changes.
+
 ## [1.1.0] - 2026-07-21
 
 ### Added
