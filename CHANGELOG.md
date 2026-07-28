@@ -3,6 +3,17 @@
 All notable changes to Entangled Chests are documented here. This project adheres
 to [Semantic Versioning](https://semver.org/).
 
+## [1.1.2] - 2026-07-28
+
+### Fixed
+
+- **Bounded Minecraft compatibility to the 1.21.x line.** The previous open-ended
+  range let the mod load on Minecraft 26.x, where it is binary-incompatible and
+  crashed the game on startup. It now declares support for `1.21.11` only (Fabric
+  `~1.21.11`, NeoForge `[1.21.11,1.22)`), so incompatible versions get a clean
+  "requires Minecraft 1.21.11" notice instead of a crash. (26.x support ships
+  separately in 2.0.0.)
+
 ## [1.1.1] - 2026-07-28
 
 ### Changed
