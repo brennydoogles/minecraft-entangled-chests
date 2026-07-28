@@ -46,4 +46,33 @@ subprojects {
 		minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
 		mappings loom.officialMojangMappings()
 	}
+
+	// For each loader platform, copy its final remapped jar up to the root
+	// build/libs directory as entangledchests-<version>-<platform>.jar, so every
+	// distributable jar lives together in one place.
+	if (project.name in rootProject.enabled_platforms.split(',')) {
+		def platform = project.name
+		def collectJar = tasks.register('collectJar', Copy) {
+			group = 'build'
+			description = "Copies the remapped ${platform} jar into the root build/libs directory."
+			from tasks.named('remapJar')
+			into rootProject.layout.buildDirectory.dir('libs')
+			rename { "${rootProject.archives_base_name}-${rootProject.mod_version}-${platform}.jar" }
+		}
+
+		tasks.named('build').configure {
+			finalizedBy collectJar
+		}
+	}
 }
+
+// Convenience aggregate: build every platform and gather the jars in build/libs.
+tasks.register('collectJars') {
+	group = 'build'
+	description = 'Builds all platforms and copies their final jars into build/libs.'
+	dependsOn rootProject.enabled_platforms.split(',').collect { ":${it}:collectJar" }
+}
+
+// The root project is only an aggregator — it compiles nothing and should not emit
+// its own (empty) jar into build/libs alongside the real per-platform jars.
+tasks.named('jar') { enabled = false }

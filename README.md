@@ -28,6 +28,7 @@ carry an enchantment glint.
 
 ```bash
 ./gradlew build                 # builds both loaders
+./gradlew collectJars           # same, but only gathers the distributable jars
 
 ./gradlew :fabric:runClient     # dev client on Fabric
 ./gradlew :fabric:runServer
@@ -35,10 +36,15 @@ carry an enchantment glint.
 ./gradlew :neoforge:runServer
 ```
 
-Output jars:
+The distributable jars for every platform are collected into the **root
+`build/libs/`** directory, named `entangledchests-<version>-<platform>.jar`:
 
-- `fabric/build/libs/entangledchests-<version>.jar`
-- `neoforge/build/libs/entangledchests-<version>.jar`
+- `build/libs/entangledchests-<version>-fabric.jar`
+- `build/libs/entangledchests-<version>-neoforge.jar`
+
+(These are copies of each module's remapped jar — the ones to upload. Ignore the
+`-dev-shadow.jar` files under `<platform>/build/libs/`; they're un-remapped build
+intermediates.)
 
 To regenerate decompiled Minecraft sources for reference: `./gradlew genSources`.
 
