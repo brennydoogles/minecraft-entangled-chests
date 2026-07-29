@@ -14,11 +14,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.ChestRenderer;
 import net.minecraft.client.renderer.blockentity.state.ChestRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.world.level.block.state.properties.ChestType;
@@ -28,8 +25,9 @@ import org.jspecify.annotations.Nullable;
 /**
  * Renders the entangled chest with our own editable texture
  * ({@code textures/entity/chest/entangled.png}, auto-stitched into the vanilla
- * chest atlas), reusing the vanilla chest model and lid animation, and drawn via
- * {@code submitModelPart} with the foil flag on so the placed block glints.
+ * chest atlas), reusing the vanilla chest model and lid animation. Uses
+ * {@code submitModel} (no foil) so one build spans 26.1 and 26.2 — see
+ * {@link EntangledChestSpecialRenderer} for why the chest can't glint here.
  */
 public class EntangledChestRenderer implements BlockEntityRenderer<EntangledChestBlockEntity, ChestRenderState> {
 
@@ -67,11 +65,11 @@ public class EntangledChestRenderer implements BlockEntityRenderer<EntangledChes
 		float open = 1.0F - state.open;
 		open = 1.0F - open * open * open;
 
-		RenderType renderType = SPRITE.renderType(RenderTypes::entityCutout);
-		TextureAtlasSprite atlasSprite = this.sprites.get(SPRITE);
-		this.model.setupAnim(open);
-		collector.submitModelPart(this.model.root(), poseStack, renderType, state.lightCoords,
-				OverlayTexture.NO_OVERLAY, atlasSprite, false, true, -1, state.breakProgress, 0);
+		// submitModel (SpriteId variant) is identical across 26.1 and 26.2 — see the
+		// note in EntangledChestSpecialRenderer. No foil flag, so the placed block
+		// doesn't glint.
+		collector.submitModel(this.model, open, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1, SPRITE,
+				this.sprites, 0, state.breakProgress);
 
 		poseStack.popPose();
 	}

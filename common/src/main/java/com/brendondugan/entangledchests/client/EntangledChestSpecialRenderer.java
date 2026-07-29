@@ -11,11 +11,8 @@ import net.minecraft.client.model.object.chest.ChestModel;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.ChestRenderer;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.NoDataSpecialModelRenderer;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
@@ -23,11 +20,15 @@ import net.minecraft.world.level.block.state.properties.ChestType;
 import org.joml.Vector3fc;
 
 /**
- * Like vanilla {@code ChestSpecialRenderer} (renders the 3D chest model as an item
- * icon) but drawn via {@code submitModelPart} so it honors the enchantment-glint
- * flag — vanilla's chest renderer ignores it, so a vanilla chest item can never
- * glint. Registered under {@code entangledchests:entangled_chest} in the special
- * model registry and referenced from the chest's item model.
+ * Renders the entangled chest as a 3D item icon with our editable texture,
+ * mirroring vanilla {@code ChestSpecialRenderer}. Registered under
+ * {@code entangledchests:entangled_chest} in the special model registry and
+ * referenced from the chest's item model.
+ *
+ * <p>Renders via {@code submitModel} (no foil flag). The foil-capable
+ * {@code submitModelPart} overload exists on 26.1 but was removed on 26.2, so a
+ * single build spanning both cannot glint the chest here — hence no chest glint
+ * (the crystal and bundle still glint, via their item component).
  */
 public class EntangledChestSpecialRenderer implements NoDataSpecialModelRenderer {
 
@@ -46,11 +47,12 @@ public class EntangledChestSpecialRenderer implements NoDataSpecialModelRenderer
 	@Override
 	public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, int overlay, boolean hasFoil,
 			int outlineColor) {
-		this.model.setupAnim(this.openness);
-		RenderType renderType = this.sprite.renderType(RenderTypes::entityCutout);
-		TextureAtlasSprite atlasSprite = this.sprites.get(this.sprite);
-		collector.submitModelPart(this.model.root(), poseStack, renderType, light, overlay, atlasSprite, false, hasFoil,
-				-1, null, outlineColor);
+		// Rendered via submitModel (the SpriteId variant) rather than submitModelPart:
+		// that overload is byte-identical across 26.1 and 26.2, so one build spans both.
+		// It carries no foil flag, so the chest itself does not glint (the crystal and
+		// bundle still do, via their item component).
+		collector.submitModel(this.model, this.openness, poseStack, light, overlay, -1, this.sprite, this.sprites,
+				outlineColor, null);
 	}
 
 	@Override
