@@ -11,6 +11,7 @@ import net.minecraft.client.model.object.chest.ChestModel;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.ChestRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.NoDataSpecialModelRenderer;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
@@ -25,10 +26,10 @@ import org.joml.Vector3fc;
  * {@code entangledchests:entangled_chest} in the special model registry and
  * referenced from the chest's item model.
  *
- * <p>Renders via {@code submitModel} (no foil flag). The foil-capable
- * {@code submitModelPart} overload exists on 26.1 but was removed on 26.2, so a
- * single build spanning both cannot glint the chest here — hence no chest glint
- * (the crystal and bundle still glint, via their item component).
+ * <p>The enchantment glint is drawn as a second {@code submitModel} pass with the
+ * entity-glint render type (mirroring vanilla {@code TridentSpecialRenderer}), since
+ * 26.2 removed the foil flag from {@code submitModelPart}. This two-pass approach
+ * uses only overloads that are identical on 26.1 and 26.2, so one build glints on both.
  */
 public class EntangledChestSpecialRenderer implements NoDataSpecialModelRenderer {
 
@@ -47,12 +48,17 @@ public class EntangledChestSpecialRenderer implements NoDataSpecialModelRenderer
 	@Override
 	public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, int overlay, boolean hasFoil,
 			int outlineColor) {
-		// Rendered via submitModel (the SpriteId variant) rather than submitModelPart:
-		// that overload is byte-identical across 26.1 and 26.2, so one build spans both.
-		// It carries no foil flag, so the chest itself does not glint (the crystal and
-		// bundle still do, via their item component).
-		collector.submitModel(this.model, this.openness, poseStack, light, overlay, -1, this.sprite, this.sprites,
-				outlineColor, null);
+		// Base pass. Uses the SpriteId submitModel overload, which is byte-identical on
+		// 26.1 and 26.2 (so one build spans both).
+		collector.order(0).submitModel(this.model, this.openness, poseStack, light, overlay, -1, this.sprite,
+				this.sprites, outlineColor, null);
+		// Glint pass: a second submitModel with the entity-glint render type. 26.2 removed
+		// the foil flag from submitModelPart, so this two-pass approach (mirroring vanilla
+		// TridentSpecialRenderer) is how a 3D model glints on both versions.
+		if (hasFoil) {
+			collector.order(1).submitModel(this.model, this.openness, poseStack, RenderTypes.entityGlint(), light,
+					overlay, outlineColor, null);
+		}
 	}
 
 	@Override

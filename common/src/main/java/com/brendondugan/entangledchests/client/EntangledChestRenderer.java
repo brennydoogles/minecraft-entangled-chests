@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.ChestRenderer;
 import net.minecraft.client.renderer.blockentity.state.ChestRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.sprite.SpriteGetter;
@@ -25,9 +26,9 @@ import org.jspecify.annotations.Nullable;
 /**
  * Renders the entangled chest with our own editable texture
  * ({@code textures/entity/chest/entangled.png}, auto-stitched into the vanilla
- * chest atlas), reusing the vanilla chest model and lid animation. Uses
- * {@code submitModel} (no foil) so one build spans 26.1 and 26.2 — see
- * {@link EntangledChestSpecialRenderer} for why the chest can't glint here.
+ * chest atlas), reusing the vanilla chest model and lid animation. The placed block
+ * always glints (drawn as a second entity-glint {@code submitModel} pass) so it is
+ * visibly distinct from a vanilla chest — see {@link EntangledChestSpecialRenderer}.
  */
 public class EntangledChestRenderer implements BlockEntityRenderer<EntangledChestBlockEntity, ChestRenderState> {
 
@@ -65,11 +66,13 @@ public class EntangledChestRenderer implements BlockEntityRenderer<EntangledChes
 		float open = 1.0F - state.open;
 		open = 1.0F - open * open * open;
 
-		// submitModel (SpriteId variant) is identical across 26.1 and 26.2 — see the
-		// note in EntangledChestSpecialRenderer. No foil flag, so the placed block
-		// doesn't glint.
-		collector.submitModel(this.model, open, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1, SPRITE,
-				this.sprites, 0, state.breakProgress);
+		// Base pass (SpriteId submitModel — identical on 26.1 and 26.2).
+		collector.order(0).submitModel(this.model, open, poseStack, state.lightCoords, OverlayTexture.NO_OVERLAY, -1,
+				SPRITE, this.sprites, 0, state.breakProgress);
+		// Glint pass — the placed entangled chest always glints so it's visibly distinct
+		// from a vanilla chest. See EntangledChestSpecialRenderer for the two-pass rationale.
+		collector.order(1).submitModel(this.model, open, poseStack, RenderTypes.entityGlint(), state.lightCoords,
+				OverlayTexture.NO_OVERLAY, 0, state.breakProgress);
 
 		poseStack.popPose();
 	}
