@@ -47,7 +47,8 @@ public class EntangledChestRegistry extends SavedData {
 			.xmap(EntangledChestRegistry::new, registry -> registry.entries);
 
 	public static final SavedDataType<EntangledChestRegistry> TYPE = new SavedDataType<>(
-			"entangledchests_chests", EntangledChestRegistry::new, CODEC, DataFixTypes.LEVEL);
+			com.brendondugan.entangledchests.EntangledChests.id("chests"),
+			EntangledChestRegistry::new, CODEC, DataFixTypes.LEVEL);
 
 	private final Map<UUID, Entry> entries;
 

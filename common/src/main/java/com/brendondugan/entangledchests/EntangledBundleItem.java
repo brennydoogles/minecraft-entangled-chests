@@ -118,16 +118,18 @@ public class EntangledBundleItem extends BundleItem {
 		if (contents == null || contents.isEmpty()) {
 			return;
 		}
-		List<ItemStack> leftovers = new ArrayList<>();
+		// 26.x bundles store immutable ItemStackTemplates; work on ItemStack copies and
+		// rebuild the contents from whatever couldn't be deposited.
+		List<net.minecraft.world.item.ItemStackTemplate> leftovers = new ArrayList<>();
 		boolean changed = false;
-		for (ItemStack item : contents.itemsCopy()) {
+		for (ItemStack item : (Iterable<ItemStack>) contents.itemCopyStream()::iterator) {
 			int before = item.getCount();
-			EntangledTransfer.deposit(server, key.chestId(), item); // mutates item
+			EntangledTransfer.deposit(server, key.chestId(), item); // mutates the copy
 			if (item.getCount() != before) {
 				changed = true;
 			}
 			if (!item.isEmpty()) {
-				leftovers.add(item);
+				leftovers.add(net.minecraft.world.item.ItemStackTemplate.fromNonEmptyStack(item));
 			}
 		}
 		if (changed) {

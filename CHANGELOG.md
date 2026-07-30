@@ -3,6 +3,28 @@
 All notable changes to Entangled Chests are documented here. This project adheres
 to [Semantic Versioning](https://semver.org/).
 
+## [2.0.0] - 2026-07-28
+
+Minecraft **26.1–26.2** support (Fabric + NeoForge).
+
+### Added
+
+- **Support for Minecraft 26.1 and 26.2.** A single build now targets the
+  deobfuscated 26.x line — compiled against 26.1 and compatible through 26.2.
+
+### Changed
+
+- Now requires **Minecraft 26.1+** and **Java 25**. (For Minecraft 1.21.11, use the
+  1.1.x releases.)
+- Updated to the deobfuscated-era toolchain (no obfuscation mappings — Minecraft
+  ships real class names as of 26.1) and refreshed dependencies: Fabric API
+  `0.155.2+26.1.2`, Architectury `20.0.9`, NeoForge `26.1.2.87`.
+
+### Notes
+
+No gameplay changes — mechanics, recipes, and behaviour are identical to the 1.1.x
+line.
+
 ## [1.1.2] - 2026-07-28
 
 ### Fixed

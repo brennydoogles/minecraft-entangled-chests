@@ -7,56 +7,58 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.object.chest.ChestModel;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.ChestRenderer;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.special.NoDataSpecialModelRenderer;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.MaterialSet;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.level.block.state.properties.ChestType;
 import org.joml.Vector3fc;
 
 /**
- * Like vanilla {@code ChestSpecialRenderer} (renders the 3D chest model as an item
- * icon) but drawn via {@code submitModelPart} so it honors the enchantment-glint
- * flag — vanilla's chest renderer ignores it, so a vanilla chest item can never
- * glint. Registered under {@code entangledchests:entangled_chest} in the special
- * model registry and referenced from the chest's item model.
+ * Renders the entangled chest as a 3D item icon with our editable texture,
+ * mirroring vanilla {@code ChestSpecialRenderer}. Registered under
+ * {@code entangledchests:entangled_chest} in the special model registry and
+ * referenced from the chest's item model.
+ *
+ * <p>The enchantment glint is drawn as a second {@code submitModel} pass with the
+ * entity-glint render type (mirroring vanilla {@code TridentSpecialRenderer}), since
+ * 26.2 removed the foil flag from {@code submitModelPart}. This two-pass approach
+ * uses only overloads that are identical on 26.1 and 26.2, so one build glints on both.
  */
 public class EntangledChestSpecialRenderer implements NoDataSpecialModelRenderer {
 
-	private final MaterialSet materials;
+	private final SpriteGetter sprites;
 	private final ChestModel model;
-	private final Material material;
+	private final SpriteId sprite;
 	private final float openness;
 
-	public EntangledChestSpecialRenderer(MaterialSet materials, ChestModel model, Material material, float openness) {
-		this.materials = materials;
+	public EntangledChestSpecialRenderer(SpriteGetter sprites, ChestModel model, SpriteId sprite, float openness) {
+		this.sprites = sprites;
 		this.model = model;
-		this.material = material;
+		this.sprite = sprite;
 		this.openness = openness;
 	}
 
 	@Override
-	public void submit(ItemDisplayContext displayContext, PoseStack poseStack, SubmitNodeCollector collector,
-			int light, int overlay, boolean hasFoil, int outlineColor) {
-		this.model.setupAnim(this.openness);
-		collector.submitModelPart(
-				this.model.root(),
-				poseStack,
-				this.material.renderType(RenderTypes::entitySolid),
-				light,
-				overlay,
-				this.materials.get(this.material),
-				false,
-				hasFoil,
-				-1,
-				null,
-				outlineColor);
+	public void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, int overlay, boolean hasFoil,
+			int outlineColor) {
+		// Base pass. Uses the SpriteId submitModel overload, which is byte-identical on
+		// 26.1 and 26.2 (so one build spans both).
+		collector.order(0).submitModel(this.model, this.openness, poseStack, light, overlay, -1, this.sprite,
+				this.sprites, outlineColor, null);
+		// Glint pass: a second submitModel with the entity-glint render type. 26.2 removed
+		// the foil flag from submitModelPart, so this two-pass approach (mirroring vanilla
+		// TridentSpecialRenderer) is how a 3D model glints on both versions.
+		if (hasFoil) {
+			collector.order(1).submitModel(this.model, this.openness, poseStack, RenderTypes.entityGlint(), light,
+					overlay, outlineColor, null);
+		}
 	}
 
 	@Override
@@ -66,7 +68,7 @@ public class EntangledChestSpecialRenderer implements NoDataSpecialModelRenderer
 		this.model.root().getExtentsForGui(poseStack, consumer);
 	}
 
-	public record Unbaked(Identifier texture, float openness) implements SpecialModelRenderer.Unbaked {
+	public record Unbaked(Identifier texture, float openness) implements NoDataSpecialModelRenderer.Unbaked {
 		public static final MapCodec<Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 				Identifier.CODEC.fieldOf("texture").forGetter(Unbaked::texture),
 				Codec.FLOAT.optionalFieldOf("openness", 0.0F).forGetter(Unbaked::openness)
@@ -78,10 +80,10 @@ public class EntangledChestSpecialRenderer implements NoDataSpecialModelRenderer
 		}
 
 		@Override
-		public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
-			ChestModel chestModel = new ChestModel(context.entityModelSet().bakeLayer(ModelLayers.CHEST));
-			Material material = Sheets.CHEST_MAPPER.apply(this.texture);
-			return new EntangledChestSpecialRenderer(context.materials(), chestModel, material, this.openness);
+		public EntangledChestSpecialRenderer bake(SpecialModelRenderer.BakingContext context) {
+			ChestModel chestModel = new ChestModel(context.entityModelSet().bakeLayer(ChestRenderer.LAYERS.select(ChestType.SINGLE)));
+			SpriteId spriteId = Sheets.CHEST_MAPPER.apply(this.texture);
+			return new EntangledChestSpecialRenderer(context.sprites(), chestModel, spriteId, this.openness);
 		}
 	}
 }
