@@ -3,7 +3,7 @@
 All notable changes to Entangled Chests are documented here. This project adheres
 to [Semantic Versioning](https://semver.org/).
 
-## [2.0.0] - 2026-07-28
+## [2.0.0] - 2026-07-30
 
 Minecraft **26.1–26.2** support (Fabric + NeoForge).
 
@@ -19,6 +19,9 @@ Minecraft **26.1–26.2** support (Fabric + NeoForge).
 - Updated to the deobfuscated-era toolchain (no obfuscation mappings — Minecraft
   ships real class names as of 26.1) and refreshed dependencies: Fabric API
   `0.155.2+26.1.2`, Architectury `20.0.9`, NeoForge `26.1.2.87`.
+- Refreshed the Entangled Chest texture and kept its enchantment glint on both the
+  item icon and the placed block, so entangled chests stay clearly distinguishable
+  from vanilla chests on 26.x.
 
 ### Notes
 
