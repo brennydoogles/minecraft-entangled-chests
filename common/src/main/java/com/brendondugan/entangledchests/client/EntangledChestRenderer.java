@@ -71,6 +71,9 @@ public class EntangledChestRenderer implements BlockEntityRenderer<EntangledChes
 				SPRITE, this.sprites, 0, state.breakProgress);
 		// Glint pass — the placed entangled chest always glints so it's visibly distinct
 		// from a vanilla chest. See EntangledChestSpecialRenderer for the two-pass rationale.
+		// The GLINT pipeline uses depth-compare EQUAL, so the glint MUST be perfectly coplanar
+		// with the base (any offset makes it fail the depth test and vanish); we therefore
+		// submit the identical model/pose as the base.
 		collector.order(1).submitModel(this.model, open, poseStack, RenderTypes.entityGlint(), state.lightCoords,
 				OverlayTexture.NO_OVERLAY, 0, state.breakProgress);
 
